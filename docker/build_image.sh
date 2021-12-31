@@ -1,3 +1,3 @@
 #!/bin/sh
 
-docker build -t cms-recon image
+docker build -t ericvaandering/cms-consistency image

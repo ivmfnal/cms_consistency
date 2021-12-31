@@ -1,3 +1,4 @@
 #!/bin/sh
 
-docker build -t rucio-cms-consistency image
+docker build -t cmssw/rucio-consistency image
+docker push cmssw/rucio-consistency 
