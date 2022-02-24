@@ -15,6 +15,7 @@ rses:
       nworkers:        8
       timeout:        300
       server_root: /store/
+      dfs: false
       remove_prefix: /
       add_prefix: /store/
       roots:

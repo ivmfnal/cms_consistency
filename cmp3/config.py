@@ -160,6 +160,9 @@ class Config:
         def scanner_server(self, rse_name):
             return self.scanner_param(rse_name, "server")
 
+        def scanner_dfs(self, rse_name):
+            return self.scanner_param(rse_name, "dfs", default=False)
+
         def scanner_workers(self, rse_name):
             return self.scanner_param(rse_name, "nworkers", default=10)
 

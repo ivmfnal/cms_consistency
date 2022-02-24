@@ -1,6 +1,7 @@
 from pythreader import TaskQueue, Task, DEQueue, PyThread, synchronized, ShellCommand
 import re, json, os, os.path, traceback
 import subprocess, time
+import random
 from part import PartitionedList
 from py3 import to_str
 from stats import Stats
@@ -538,9 +539,25 @@ def rewrite(path, path_prefix, remove_prefix, add_prefix, path_filter, rewrite_p
             sys.exit(1)
         path = rewrite_path.sub(rewrite_out, path)   
     return path
-    
 
-def scan_root(rse, server_root, root, config, my_stats, stats, stats_key, 
+def get_data_server(redirector, location, timeout=10):
+    # Query a redirector and return a single registered data server
+    # On failure, return the original server address
+    subp = subprocess.run(['xrdfs', redirector, 'locate', '-m', location],
+            timeout=timeout, encoding='utf-8',
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+
+    if subp.returncode != 0:
+        return redirector
+
+    servers = [x.split()[0] for x in subp.stdout.splitlines()]
+
+    if servers:
+        return random.choice(servers)
+    else:
+        return redirector
+
+def scan_root(rse, server, server_root, root, config, my_stats, stats, stats_key,
     override_recursive_threshold, override_max_scanners, file_list, dir_list,
     purge_empty_dirs, ignore_failed_directories, include_sizes):
     
@@ -597,6 +614,11 @@ def scan_root(rse, server_root, root, config, my_stats, stats, stats_key,
         print("  Recursive threshold = %d" % (recursive_threshold,))
         print("  Max scanner threads = %d" % max_scanners)
         print("  Timeout             = %s" % timeout)
+
+        # For distributed filesystems, query the redirector and choose a data server
+        if config.scanner_dfs(rse):
+            server = get_data_server(server, top_path, timeout=timeout)
+            print("  Data server         = %s" % server)
 
         ignore_list = config.ignore_list(rse)
         if ignore_list:
@@ -764,7 +786,7 @@ if __name__ == "__main__":
     all_roots_failed = True
     for root in config.scanner_roots(rse):
         try:
-            failed, root_failed = scan_root(rse, server_root, root, config, my_stats, stats, stats_key, override_recursive_threshold, 
+            failed, root_failed = scan_root(rse, server, server_root, root, config, my_stats, stats, stats_key, override_recursive_threshold,
                     override_max_scanners, out_list, dir_list,
                     purge_empty_dirs, ignore_directory_scan_errors, include_sizes)
             all_roots_failed = all_roots_failed and root_failed
