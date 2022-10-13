@@ -144,7 +144,7 @@ class XRootDClient(Primitive):
             return "timeout", None, None
         size = None
         typ = None
-        for line in out.split("\n")
+        for line in out.split("\n"):
             line = line.strip().lower()
             if line.startswith("flags:"):
                 if "isdir" in line:
