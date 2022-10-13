@@ -270,7 +270,7 @@ class Prescanner(Primitive):
             self.Error = None
 
         def run(self):
-            self.Client = XRootDClient(self.Server, self.ServerRoot, self.IsRedirector, self.Root, self.Timeout)
+            self.Client = XRootDClient(self.Server, self.IsRedirector, self.ServerRoot, self.Root, self.Timeout)
             status, self.Error, _, _ = self.Client.ls(self.Root, False, False)
             self.Failed = status != "OK"
             return not self.Failed
