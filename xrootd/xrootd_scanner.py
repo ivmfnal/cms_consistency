@@ -377,11 +377,12 @@ class Scanner(Task):
         status, reason, dirs, files = self.Client.ls(self.Location, recursive, self.IncludeSizes)
 
         if recursive and not files and not dirs:
-            stats = "s"
             status, files, dirs = self.rescan_apparent_empty()
             if status != "OK":
                 #print("rescan_apparent_empty failed:", status)
                 status, reason = "failed", status
+            stats = "s"
+            recursive = False
 
         if status != "OK":
             stats += " " + reason
