@@ -345,10 +345,10 @@ class Scanner(Task):
         if status != "OK":
             return status, reason, [], []
         
-        paths = dirs + files        # do not trust file/dir discrimination based on the item name
+        items = dirs + files        # do not trust file/dir discrimination based on the item name
         dirs = []
         files = []
-        for path in paths:
+        for path, _ in items:
             status, reason, typ, size = self.Client.stat(path)
             if status != "OK":
                 return "%s: %s" % (status, reason or ""), [], []
