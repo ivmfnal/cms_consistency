@@ -341,6 +341,7 @@ class Scanner(Task):
         return words[0] or "/"
         
     def rescan_apparent_empty(self):
+        print("rescanning apparently empty ", self.Location)
         status, reason, dirs, files = self.Client.ls(self.Location, False, False)
         if status != "OK":
             return status, reason, [], []
@@ -353,9 +354,10 @@ class Scanner(Task):
             if status != "OK":
                 return "%s: %s" % (status, reason or ""), [], []
             if typ == 'd':
-                dirs.appens((path, 0))
+                dirs.append((path, 0))
             else:
                 files.append((path, size))
+        print("   rescanned: dirs/files:", len(dirs), len(files))
         return "OK", files, dirs
                 
     def run(self):
