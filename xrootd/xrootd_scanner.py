@@ -341,7 +341,7 @@ class Scanner(Task):
         return words[0] or "/"
         
     def rescan_apparent_empty(self):
-        print("rescanning apparently empty ", self.Location)
+        #print("rescanning apparently empty ", self.Location)
         status, reason, dirs, files = self.Client.ls(self.Location, False, False)
         if status != "OK":
             return status, reason, [], []
@@ -357,7 +357,7 @@ class Scanner(Task):
                 dirs.append((path, 0))
             else:
                 files.append((path, size))
-        print("   rescanned: dirs/files:", len(dirs), len(files))
+        #print("   rescanned: dirs/files:", len(dirs), len(files))
         return "OK", files, dirs
                 
     def run(self):
@@ -377,9 +377,10 @@ class Scanner(Task):
         status, reason, dirs, files = self.Client.ls(self.Location, recursive, self.IncludeSizes)
 
         if recursive and not files and not dirs:
+            stats = "s"
             status, files, dirs = self.rescan_apparent_empty()
             if status != "OK":
-                print("rescan_apparent_empty failed:", status)
+                #print("rescan_apparent_empty failed:", status)
                 status, reason = "failed", status
 
         if status != "OK":
@@ -391,7 +392,6 @@ class Scanner(Task):
 
         self.Elapsed = time.time() - self.Started
         #stats = "%1s %7.3fs" % ("r" if recursive else " ", self.Elapsed)
-        stats = "r" if recursive else " "
     
         #
         # create the set of directories, which contain no files, recursively
