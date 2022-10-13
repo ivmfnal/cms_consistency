@@ -564,7 +564,7 @@ class ScannerMaster(PyThread):
         if dirs:
             paths, sizes = zip(*dirs)
             scan = not was_recursive
-            allow_recursive = scan and len(dirs) > 1
+            allow_recursive = scan      # and len(dirs) > 1
             self.addDirectories(paths, scan, allow_recursive)
             #if self.IncludeSizes:
             #    self.TotalSize += sum(sizes)
