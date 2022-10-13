@@ -376,6 +376,7 @@ class Scanner(Task):
 
         if recursive and not files and not dirs:
             status, files, dirs = self.rescan_apparent_empty()
+            print("rescan_apparent_empty failed:", status)
             status, reason = "failed", status
 
         if status != "OK":
