@@ -337,6 +337,10 @@ class Scanner(Task):
         if len(words) == 1:
             return ""               # relative path ??
         return words[0] or "/"
+        
+    def rescan_apparent_empty(self):
+        status, reason, dirs, files = self.Client.ls(self.Location, False, False)
+        
                 
     def run(self):
         #print("Scanner.run():", self.Master)
@@ -355,6 +359,17 @@ class Scanner(Task):
         status, reason, dirs, files = self.Client.ls(self.Location, recursive, self.IncludeSizes)
         files = list(files)
         dirs = list(dirs)
+
+        if not files and not dirs:
+            status, files, dirs = self.rescan_apparent_empty()
+
+        if status != "OK":
+            stats += " " + reason
+            self.message(status, stats)
+            if self.Master is not None:
+                self.Master.scanner_failed(self, f"{status}: {reason}")
+            return
+
 
         self.Elapsed = time.time() - self.Started
         #stats = "%1s %7.3fs" % ("r" if recursive else " ", self.Elapsed)
@@ -377,20 +392,13 @@ class Scanner(Task):
             if recursive or not dirs:
                 empty_dirs.add(self.Client.absolute_path(self.Location))
 
-        if status != "OK":
-            stats += " " + reason
-            self.message(status, stats)
-            if self.Master is not None:
-                self.Master.scanner_failed(self, f"{status}: {reason}")
-
-        else:
-            counts = " files: %-8d dirs: %-8d empty: %-8d" % (len(files), len(dirs), len(empty_dirs))
-            if self.IncludeSizes:
-                total_size = sum(size for _, size in files) + sum(size for _, size in dirs)
-                counts += " size: %10.3fGB" % (total_size/GB,)
-            self.message("done", stats+counts)
-            if self.Master is not None:
-                self.Master.scanner_succeeded(location, self.WasRecursive, files, dirs, empty_dirs)
+        counts = " files: %-8d dirs: %-8d empty: %-8d" % (len(files), len(dirs), len(empty_dirs))
+        if self.IncludeSizes:
+            total_size = sum(size for _, size in files) + sum(size for _, size in dirs)
+            counts += " size: %10.3fGB" % (total_size/GB,)
+        self.message("done", stats+counts)
+        if self.Master is not None:
+            self.Master.scanner_succeeded(location, self.WasRecursive, files, dirs, empty_dirs)
 
 class ScannerMaster(PyThread):
     
