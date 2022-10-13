@@ -142,7 +142,7 @@ class XRootDClient(Primitive):
         command = "xrdfs %s stat %s" % (server, path)
         try:    retcode, out, err = ShellCommand.execute(command, timeout=self.Timeout)
         except RuntimeError:
-            return "timeout", None, None
+            return "timeout", None, None, None
         size = None
         typ = None
         for line in out.split("\n"):
@@ -157,7 +157,7 @@ class XRootDClient(Primitive):
                     size = int(line.split(None, 1)[1])
                 except:
                     size = None
-        return "OK", typ, size
+        return "OK", None, typ, size
 
     def ls(self, location, recursive, with_meta):
         #print(f"scan({location}, rec={recursive}, with_meta={with_meta}):...")
@@ -179,12 +179,17 @@ class XRootDClient(Primitive):
             reason = f"timeout ({self.Timeout})"
         else:
             if retcode:
-                status = "ls failed"
-                reason = "status code: %s, stderr: [%s]" % (retcode, err)
+                status = "failed"
+                reason = "ls status code: %s, stderr: [%s]" % (retcode, err)
 
-                typ, size = self.stat(location)
-                if typ == 'f':
-                    return "OK", "", [], [(location, size)]
+                status, reasoon, typ, size = self.stat(location)
+                if status != "OK":
+                    reason = "stat failed: " + (reason or "")
+                else:
+                    if typ == 'f':
+                        status = "OK"
+                        reason = ""
+                        files = [(location, size)]
             else:
                 lines = [x.strip() for x in out.split("\n")]
                 for l in lines:

@@ -342,16 +342,16 @@ class Scanner(Task):
         
     def rescan_apparent_empty(self):
         status, reason, dirs, files = self.Client.ls(self.Location, False, False)
-        if status:
-            return reason, [], []
+        if status != "OK":
+            return status, reason, [], []
         
         paths = dirs + files        # do not trust file/dir discrimination based on the item name
         dirs = []
         files = []
         for path in paths:
-            status, typ, size = self.Client.stat(path)
+            status, reason, typ, size = self.Client.stat(path)
             if status != "OK":
-                return status, [], []
+                return "%s: %s" % (status, reason or ""), [], []
             if typ == 'd':
                 dirs.appens((path, 0))
             else:
@@ -376,7 +376,8 @@ class Scanner(Task):
 
         if recursive and not files and not dirs:
             status, files, dirs = self.rescan_apparent_empty()
-            print("rescan_apparent_empty failed:", status)
+            if status != "OK":
+                print("rescan_apparent_empty failed:", status)
             status, reason = "failed", status
 
         if status != "OK":
