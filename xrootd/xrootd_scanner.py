@@ -380,7 +380,7 @@ class Scanner(Task):
             status, files, dirs = self.rescan_apparent_empty()
             if status != "OK":
                 print("rescan_apparent_empty failed:", status)
-            status, reason = "failed", status
+                status, reason = "failed", status
 
         if status != "OK":
             stats += " " + reason
