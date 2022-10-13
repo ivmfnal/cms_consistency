@@ -4,6 +4,7 @@ import subprocess, time, random, gzip
 from part import PartitionedList
 from py3 import to_str
 from stats import Stats
+from xrootd_client import XRootDClient
 
 Version = "2.1"
 
@@ -69,7 +70,7 @@ class RMDir(Task):
             # ignore
             pass
 
-class XRootDClient(Primitive):
+class ___XRootDClient(Primitive):
 
     def __init__(self, server, server_root, is_redirector, root, timeout):
         Primitive.__init__(self, name=f"XRootDClient({root})")
@@ -340,7 +341,21 @@ class Scanner(Task):
         
     def rescan_apparent_empty(self):
         status, reason, dirs, files = self.Client.ls(self.Location, False, False)
+        if status:
+            return status, reason, [], []
         
+        paths = dirs + files        # do not trust file/dir discrimination based on the item name
+        dirs = []
+        files = []
+        for path in paths:
+            status, typ, size = self.Client.stat(path)
+            if status != "OK":
+                return status, [], []
+            if typ == 'd':
+                dirs.appens((path, 0))
+            else:
+                files.append((path, size))
+        return "OK", files, dirs
                 
     def run(self):
         #print("Scanner.run():", self.Master)
@@ -357,10 +372,8 @@ class Scanner(Task):
         #self.message("start", stats)
 
         status, reason, dirs, files = self.Client.ls(self.Location, recursive, self.IncludeSizes)
-        files = list(files)
-        dirs = list(dirs)
 
-        if not files and not dirs:
+        if recursive and not files and not dirs:
             status, files, dirs = self.rescan_apparent_empty()
 
         if status != "OK":
@@ -369,7 +382,6 @@ class Scanner(Task):
             if self.Master is not None:
                 self.Master.scanner_failed(self, f"{status}: {reason}")
             return
-
 
         self.Elapsed = time.time() - self.Started
         #stats = "%1s %7.3fs" % ("r" if recursive else " ", self.Elapsed)
