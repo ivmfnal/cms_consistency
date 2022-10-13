@@ -253,6 +253,7 @@ class ___XRootDClient(Primitive):
 
         return status, reason, dirs, files
         
+
 class Prescanner(Primitive):
 
     class PrescannerTask(Task):
