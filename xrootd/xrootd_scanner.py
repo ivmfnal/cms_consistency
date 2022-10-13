@@ -382,7 +382,7 @@ class Scanner(Task):
                 #print("rescan_apparent_empty failed:", status)
                 status, reason = "failed", status
             stats = "s"
-            recursive = False
+            self.WasRecursive = recursive = False
 
         if status != "OK":
             stats += " " + reason
