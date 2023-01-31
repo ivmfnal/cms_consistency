@@ -2,8 +2,8 @@ import sys, os, getopt, time
 from datetime import datetime, timedelta
 
 from run import CCRun
-from stats import Stats
-from config import ActionConfiguration
+from consistency_enforcement import Stats
+from action_config import ActionConfiguration
 
 Version = "1.2"
 
