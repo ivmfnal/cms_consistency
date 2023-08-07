@@ -94,7 +94,7 @@ class CEHandler(WPHandler):
             if summary.get("failed") or summary.get("detection_status") == "failed":
                 summary["attention"] = "failed"
                 summary["order"] = 10
-            elif summary.get("detection_status") == "started" and summary["start_time"] < 3*24*3600:
+            elif summary.get("detection_status") == "started" and (summary.get("start_time") is None or summary["start_time"] < 3*24*3600):
                 summary["order"] = 20
                 summary["attention"] = "started"
             elif summary.get("detection_status") == "done":
@@ -108,7 +108,7 @@ class CEHandler(WPHandler):
                         if summary[part].get("action_status") == "aborted" and \
                                         ("too many" in summary[part].get("aborted_reason", "").lower() 
                                             or "latest run too old" in summary[part].get("aborted_reason", "").lower() ) \
-                                or summary[part].get("action_status") == "started" and summary["start_time"] < 3*24*3600:
+                                or summary[part].get("action_status") == "started" and (summary.get("start_time") is None or summary["start_time"] < 3*24*3600):
                             summary["order"] = 40
                             summary["attention"] = "aborted"
                             break
