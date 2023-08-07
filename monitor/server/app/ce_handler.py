@@ -125,13 +125,13 @@ class CEHandler(WPHandler):
         summaries = []
 
         if problems:
-            summaries += sorted(problems, key=lambda s: (s["order"], -s.get("start_time") or 1, s["rse"]))
+            summaries += sorted(problems, key=lambda s: (s["order"], -s.get("start_time",1) or -1, s["rse"]))
 
         if the_rest:
             if view == "ce_run":
-                the_rest = sorted(the_rest, key=lambda s: (s.get("start_time") or -1, s["rse"]))
+                the_rest = sorted(the_rest, key=lambda s: (s.get("start_time",-1) or -1, s["rse"]))
             elif view == "-ce_run":
-                the_rest = sorted(the_rest, key=lambda s: (s.get("start_time") or -1, s["rse"]), reverse=True)
+                the_rest = sorted(the_rest, key=lambda s: (s.get("start_time",-1) or -1, s["rse"]), reverse=True)
             else:   # view == "rse"
                 the_rest = sorted(the_rest, key=lambda s: s["rse"])
             if problems:
