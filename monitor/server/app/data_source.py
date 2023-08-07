@@ -523,9 +523,17 @@ class CCDataSource(DataSource):
                     running_comp = comp
 
                 if comp_status == "started" and not status:
-                    status = "started"
+                    comp_status = "started"
+                    if "heartbeat" in comp_stats:
+                        t = comp_stats["heartbeat"]
+                        if t >= time.time() - 30*60:
+                            status_by_comp[comp] = comp_status = "running"
+                        else:
+                            status_by_comp[comp] = comp_status = "died"
+                            tend = t
+                            failed_comp = comp
 
-                if comp_status == "failed":
+                if comp_status in ("failed", "died"):
                     status = "failed"
                     failed_comp = comp
 
