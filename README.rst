@@ -1,5 +1,16 @@
-CMS Rucio Consistency Tools
-===========================
+CMS Rucio Consistency
+=====================
+
+CMS Rucio Consistency is a set of CMS-cpecific tools and procedures used to enforce
+the consistency between the Rucio database and the actual site content. It uses
+the following experiment-independent tools and libraries from the ``rucio-consistency`` PyPi package:
+
+* ``rce_scan`` - XRootD scanner
+* ``rce_db_dump`` - dump of the Rucio database replicas table
+* ``rse_partition`` - create a partitioned list of replicas
+* ``rse_cmp5`` - comparison of the Rucio database dump and the site scanner, producing the
+  list of missing and dark replicas
+* partitioned list handling library
 
 Tools description
 -----------------
